@@ -4,11 +4,21 @@
       <el-header>
         <div class="left">
           <span>急诊医学科晨交班</span>
+          <span style="font-size: 18px;margin-left: 20px">日期：{{selectDate}}</span>
         </div>
-        <div class="right">
+        <div class="right" style="margin-right: 30px">
           <el-button type="primary" @click="EmergencyFormVisible = true">出车</el-button>
-          <el-button type="primary" style="margin-left: 20px;margin-right: 20px" @click="dialogFormVisible = true">高压氧科</el-button>
-          <span>日期：{{selectDate}}</span>
+          <el-button type="primary" style="margin-left: 20px;margin-right: 20px" @click="dialogFormVisible = true">
+            高压氧科
+          </el-button>
+          <span>选择日期：</span>
+          <el-date-picker
+            v-model="selectDate"
+            type="date"
+            value-format="yyyy-MM-dd"
+            @change="handleSelectDate"
+            placeholder="选择日期">
+          </el-date-picker>
         </div>
       </el-header>
       
@@ -361,7 +371,7 @@
           <el-date-picker type="date" placeholder="选择日期" v-model="form.date" value-format="yyyy-MM-dd"></el-date-picker>
         </el-form-item>
         <el-form-item label="高压氧舱数" :label-width="formLabelWidth">
-          <el-input-number v-model="form.item1" :min="0" :max="100" label="描述文字"></el-input-number>
+          <el-input-number v-model="form.item1" size="large" :min="0" :max="100" label="描述文字"></el-input-number>
         </el-form-item>
         <el-form-item label="高压氧治疗" :label-width="formLabelWidth">
           <el-input-number v-model="form.item2" :min="0" :max="100" label="描述文字"></el-input-number>
@@ -383,7 +393,8 @@
     <el-dialog title="24小时院前出车人次" :visible.sync="EmergencyFormVisible">
       <el-form :model="EmergencyForm">
         <el-form-item label="日期" :label-width="formLabelWidth">
-          <el-date-picker type="date" placeholder="选择日期" v-model="EmergencyForm.date" value-format="yyyy-MM-dd"></el-date-picker>
+          <el-date-picker type="date" placeholder="选择日期" v-model="EmergencyForm.date"
+                          value-format="yyyy-MM-dd"></el-date-picker>
         </el-form-item>
         <el-form-item label="本部派车" :label-width="formLabelWidth">
           <el-input-number v-model="EmergencyForm.item1" :min="0" :max="100" label="描述文字"></el-input-number>
@@ -540,15 +551,10 @@
         }
       }
     },
+    
     mounted() {
       this.render(this.optionData);
-      this.getEICU(this.selectDate);
-      this.getEmergencyData(this.selectDate);
-      this.getEmergencyPatient(this.selectDate);
-      this.getInjectData(this.selectDate);
-      this.getHospitalCar(this.selectDate);
-      this.getOxygenData(this.selectDate);
-      this.getEmergencyWard(this.selectDate);
+      this.initDate();
     },
     
     methods: {
@@ -686,12 +692,21 @@
         post("/Oxygen/save", this.form).then(value => {
           if (value == 1) {
             this.dialogFormVisible = false;
-            this.$message('保存成功！');
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
           } else {
-            this.$message("保存失败");
+            this.$message({
+              message: '保存失败',
+              type: 'warning'
+            });
           }
         }).catch(err => {
-          this.$message("保存失败");
+          this.$message({
+            message: '保存失败',
+            type: 'warning'
+          });
         })
       },
       
@@ -701,13 +716,39 @@
           console.log(value);
           if (value == 1) {
             this.EmergencyFormVisible = false;
-            this.$message('保存成功！');
+            this.$message({
+              message: '保存成功',
+              type: 'success'
+            });
           } else {
-            this.$message("保存失败");
+            this.$message({
+              message: '保存失败',
+              type: 'warning'
+            });
           }
         }).catch(err => {
-          this.$message("保存失败");
+          this.$message({
+            message: '保存失败',
+            type: 'warning'
+          });
         })
+      },
+      
+      
+      /*日期时间的变化*/
+      handleSelectDate() {
+        this.initDate();
+      },
+      
+      
+      initDate() {
+        this.getEICU(this.selectDate);
+        this.getEmergencyData(this.selectDate);
+        this.getEmergencyPatient(this.selectDate);
+        this.getInjectData(this.selectDate);
+        this.getHospitalCar(this.selectDate);
+        this.getOxygenData(this.selectDate);
+        this.getEmergencyWard(this.selectDate);
       }
       
       
